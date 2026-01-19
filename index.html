@@ -4,58 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#121212">
-    <title>PWA OK</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Kordy PWA</title>
     <link rel="manifest" href="manifest.json">
     <style>
-        body { margin: 0; background: #121212; color: white; font-family: sans-serif; height: 100dvh; display: flex; justify-content: center; align-items: center; }
-        #app-view { display: none; flex-direction: column; align-items: center; }
-        #browser-view { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        :root { --blue: #007AFF; --bg: #121212; }
+        body { margin: 0; background: var(--bg); color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100dvh; text-align: center; }
         
+        /* Ukrywanie widoków */
+        #browser-view, #app-view, #instr-android, #instr-iphone { display: none; flex-direction: column; align-items: center; gap: 15px; padding: 20px; }
+
+        /* Widok po instalacji */
         @media (display-mode: standalone) {
-            #browser-view { display: none; }
-            #app-view { display: flex; }
+            #browser-view { display: none !important; }
+            #app-view { display: flex !important; }
         }
 
-        .btn-blue {
-            background: #007AFF; color: white; border: none; padding: 20px 40px;
-            font-size: 24px; font-weight: bold; border-radius: 20px; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,122,255,0.4);
-        }
-        .kordy { font-size: 3rem; color: #007AFF; border: 2px solid white; padding: 20px; border-radius: 15px; }
+        /* Widok w przeglądarce */
+        #browser-view { display: flex; }
+
+        .btn { background: var(--blue); color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 12px; cursor: pointer; width: 250px; }
+        .instruction-box { background: #1e1e1e; padding: 15px; border-radius: 15px; border: 1px solid #333; margin-top: 10px; }
+        .kordy { font-size: 3rem; color: var(--blue); border: 2px solid white; padding: 20px; border-radius: 15px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
     <div id="browser-view">
-        <button id="installBtn" class="btn-blue">ZAINSTALUJ</button>
-        <p>Odśwież stronę, jeśli przycisk nie reaguje</p>
+        <h1>Wybierz swój system:</h1>
+        <button class="btn" onclick="showInstr('android')">Android / Chrome</button>
+        <button class="btn" onclick="showInstr('iphone')">iPhone / Safari</button>
+
+        <div id="instr-android">
+            <div class="instruction-box">
+                <p>1. Kliknij <b>trzy kropki (⋮)</b> w prawym górnym rogu.</p>
+                <p>2. Wybierz <b>"Zainstaluj aplikację"</b>.</p>
+                <p><i>Jeśli widzisz tylko "Dodaj skrót", odśwież stronę i poczekaj 5 sekund.</i></p>
+            </div>
+        </div>
+
+        <div id="instr-iphone">
+            <div class="instruction-box">
+                <p>1. Kliknij ikonę <b>Udostępnij (kwadrat ze strzałką)</b> na dole ekranu.</p>
+                <p>2. Przewiń w dół i wybierz <b>"Do ekranu początkowego"</b>.</p>
+            </div>
+        </div>
     </div>
 
     <div id="app-view">
         <div class="kordy">15 75 24</div>
-        <p>Aplikacja Offline</p>
+        <p>Portal aktywny offline</p>
+        <p style="color: #666; font-size: 12px;">Nie można odświeżyć gestem w trybie apki.</p>
     </div>
 
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
+        // Pokazywanie instrukcji
+        function showInstr(type) {
+            document.getElementById('instr-android').style.display = 'none';
+            document.getElementById('instr-iphone').style.display = 'none';
+            document.getElementById('instr-' + type).style.display = 'flex';
         }
 
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            console.log("PWA gotowe do instalacji");
-        });
-
-        document.getElementById('installBtn').addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-            } else {
-                alert("Chrome jeszcze sprawdza pliki. Odczekaj 5 sekund i spróbuj ponownie.");
-            }
-        });
+        // REJESTRACJA SERVICE WORKERA - Musi być solidna, żeby było "Zainstaluj"
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    console.log("SW aktywny");
+                }).catch(err => console.log("Błąd SW:", err));
+            });
+        }
     </script>
 </body>
 </html>
-
