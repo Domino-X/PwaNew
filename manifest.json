@@ -1,0 +1,17 @@
+{
+  "name": "Portal Kordy",
+  "short_name": "Kordy",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "icons": [
+    {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_Chrome_Material_Icon-450x450.png/512px-Google_Chrome_Material_Icon-450x450.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
+
