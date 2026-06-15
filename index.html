@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Lumii (Stabilny Ekran)</title>
+    <title>Test Lumii (Klikany Jiggler)</title>
     <style>
         body { 
             background: #111; 
@@ -12,8 +12,7 @@
             font-family: sans-serif; 
             margin: 0;
             padding: 20px;
-            /* Usunęliśmy zapas wysokości, strona nie będzie się przewijać */
-            overflow: hidden; 
+            overflow: hidden;
         }
         canvas { 
             border: 2px solid #00ff00; 
@@ -21,69 +20,70 @@
             margin-top: 20px; 
             max-width: 100%;
         }
-        #status {
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-        /* Niewidzialny element do oszukiwania procesora */
-        #dummy {
+        /* Ukryty przycisk do klikania dla Jigglera */
+        #jiggler-button {
             position: absolute;
+            bottom: -100px;
             width: 1px;
             height: 1px;
-            top: 0;
-            left: 0;
+            opacity: 0;
         }
     </style>
 </head>
 <body>
 
     <h2>Lokalny Test Wydajności (60 FPS)</h2>
-    <div id="status" style="color: #00ff00;">Stabilna blokada usypiania</div>
+    <div id="status" style="color: #00ff00;">Jiggler kliknięć (1s) aktywny</div>
     
     <canvas id="canvas" width="400" height="300"></canvas>
-    <div id="dummy"></div>
+    
+    <button id="jiggler-button">Klik</button>
 
     <script>
         var canvas = document.getElementById('canvas');
         var ctx = canvas.getContext('2d');
-        var dummy = document.getElementById('dummy');
+        var przycisk = document.getElementById('jiggler-button');
         
         var x = 0;
         var y = 150;
-        var dx = 4; // Prędkość ruchu kropki
-        var toggle = false;
+        var dx = 4;
 
+        // Główna pętla animacji (60 klatek na sekundę)
         function rysujKlatke() {
-            // 1. Czyszczenie całego płótna
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // 2. Rysowanie tła testowego
             ctx.fillStyle = "#333";
             ctx.fillRect(10, 10, 380, 280);
             
-            // 3. Obliczanie nowego położenia kropki
             x += dx;
-            if(x > canvas.width - 20 || x < 20) {
-                dx = -dx;
-            }
+            if(x > canvas.width - 20 || x < 20) dx = -dx;
             
-            // 4. Rysowanie kropki
             ctx.beginPath();
             ctx.arc(x, y, 20, 0, Math.PI * 2);
             ctx.fillStyle = "#00ff00";
             ctx.fill();
             ctx.closePath();
-
-            // --- NOWE, NIEWIDOCZNE OSZUSTWO DLA PROCESORA ---
-            toggle = !toggle;
-            
-            // Zmieniamy przezroczystość niewidzialnego elementu z 0.01 na 0.02 w kółko.
-            // Dla człowieka to absolutnie niezauważalne, ale przeglądarka musi to ciągle przeliczać.
-            dummy.style.opacity = toggle ? 0.02 : 0.01;
         }
-
-        // Stabilne i wymuszone odświeżanie co 16ms
         setInterval(rysujKlatke, 16);
+
+        // --- TWÓJ POMYSŁ: WIRTUALNY JIGGLER KLIKNIĘĆ ---
+        // Licznik, żebyśmy widzieli w statusie, że klika
+        var iloscKlikniec = 0;
+        var statusDiv = document.getElementById('status');
+
+        setInterval(function() {
+            // Wywołujemy wirtualne kliknięcie na ukrytym przycisku
+            przycisk.click();
+            
+            iloscKlikniec++;
+            statusDiv.innerHTML = "Jiggler kliknął już: " + iloscKlikniec + " razy";
+        }, 1000); // 1000 ms = dokładnie 1 sekunda
+
+        // Nasłuchiwanie na kliknięcie – dowód, że jiggler działa
+        przycisk.onclick = function() {
+            // Tutaj opcjonalnie możemy wymusić mikro-zmianę w DOM, 
+            // żeby dać procesorowi Lumii znać, że akcja się powiodła
+            przycisk.style.width = (przycisk.offsetWidth === 1 ? 2 : 1) + "px";
+        };
     </script>
 
 </body>
