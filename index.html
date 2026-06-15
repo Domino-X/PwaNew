@@ -2,55 +2,185 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Poprawny Test Lumii</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poprawny Test Lumii (Anti-Sleep)</title>
     <style>
-        body { background: #111; color: white; text-align: center; font-family: sans-serif; }
-        canvas { border: 2px solid #00ff00; background: #222; margin-top: 20px; }
+        body { 
+            background: #111; 
+            color: white; 
+            text-align: center; 
+            font-family: sans-serif; 
+            margin: 0;
+            padding: 20px;
+            /* Tworzymy minimalny zapas wysokości do oszustwa ze scrollem */
+            height: 101vh; 
+        }
+        canvas { 
+            border: 2px solid #00ff00; 
+            background: #222; 
+            margin-top: 20px; 
+            max-width: 100%;
+        }
+        #status {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        /* Niewidzialny element pomocniczy do oszukiwania procesora */
+        #dummy {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0.01;
+        }
     </style>
 </head>
 <body>
+
     <h2>Lokalny Test Wydajności (60 FPS)</h2>
-    <div id="status" style="color: #00ff00;">Test lokalny - bez opóźnień sieciowych</div>
+    <div id="status" style="color: #00ff00;">Blokada usypiania procesora aktywowana</div>
     
     <canvas id="canvas" width="400" height="300"></canvas>
+    <div id="dummy"></div>
 
     <script>
         var canvas = document.getElementById('canvas');
         var ctx = canvas.getContext('2d');
+        var dummy = document.getElementById('dummy');
         
         var x = 0;
         var y = 150;
-        var dx = 3; // Prędkość kropki
+        var dx = 4; // Prędkość ruchu kropki
+        var toggle = false;
 
-        function animuj() {
-            // Czyścimy płótno
+        function rysujKlatke() {
+            // 1. Czyszczenie całego płótna
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Tło testowe
+            // 2. Rysowanie tła testowego
             ctx.fillStyle = "#333";
             ctx.fillRect(10, 10, 380, 280);
             
-            // Ruch kropki
+            // 3. Obliczanie nowego położenia kropki
             x += dx;
-            if(x > canvas.width - 20 || x < 20) dx = -dx;
+            if(x > canvas.width - 20 || x < 20) {
+                dx = -dx;
+            }
             
-            // Rysowanie kropki
+            // 4. Rysowanie idealnie gładkiej kropki
             ctx.beginPath();
-            ctx.arc(x, y, 20, 0, Math.PI*2);
+            ctx.arc(x, y, 20, 0, Math.PI * 2);
             ctx.fillStyle = "#00ff00";
             ctx.fill();
             ctx.closePath();
+
+            // --- TRIKI BLOKUJĄCE USYPIANIE LUMII ---
+            toggle = !toggle;
             
-            // Modern requestAnimationFrame lub stary fallback dla starszych silników Trident
-            if (window.requestAnimationFrame) {
-                window.requestAnimationFrame(animuj);
-            } else {
-                setTimeout(animuj, 16);
-            }
+            // Trik A: Delikatny, niewidoczny scroll o 1 piksel w dół i w górę
+            window.scrollTo(0, toggle ? 1 : 0);
+            
+            // Trik B: Zmiana zawartości losowego elementu w pamięci, 
+            // żeby wymusić ciągłą pracę silnika renderującego Trident
+            dummy.style.left = toggle ? "1px" : "0px";
         }
 
-        // Odpalamy lokalną animację
-        animuj();
+        // Używamy agresywnego setInterval zamiast requestAnimationFrame.
+        // Odświeżanie co 16ms wymusza stabilne okolice 60 klatek na sekundę.
+        setInterval(rysujKlatke, 16);
     </script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poprawny Test Lumii (Anti-Sleep)</title>
+    <style>
+        body { 
+            background: #111; 
+            color: white; 
+            text-align: center; 
+            font-family: sans-serif; 
+            margin: 0;
+            padding: 20px;
+            /* Tworzymy minimalny zapas wysokości do oszustwa ze scrollem */
+            height: 101vh; 
+        }
+        canvas { 
+            border: 2px solid #00ff00; 
+            background: #222; 
+            margin-top: 20px; 
+            max-width: 100%;
+        }
+        #status {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        /* Niewidzialny element pomocniczy do oszukiwania procesora */
+        #dummy {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0.01;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Lokalny Test Wydajności (60 FPS)</h2>
+    <div id="status" style="color: #00ff00;">Blokada usypiania procesora aktywowana</div>
+    
+    <canvas id="canvas" width="400" height="300"></canvas>
+    <div id="dummy"></div>
+
+    <script>
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
+        var dummy = document.getElementById('dummy');
+        
+        var x = 0;
+        var y = 150;
+        var dx = 4; // Prędkość ruchu kropki
+        var toggle = false;
+
+        function rysujKlatke() {
+            // 1. Czyszczenie całego płótna
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 2. Rysowanie tła testowego
+            ctx.fillStyle = "#333";
+            ctx.fillRect(10, 10, 380, 280);
+            
+            // 3. Obliczanie nowego położenia kropki
+            x += dx;
+            if(x > canvas.width - 20 || x < 20) {
+                dx = -dx;
+            }
+            
+            // 4. Rysowanie idealnie gładkiej kropki
+            ctx.beginPath();
+            ctx.arc(x, y, 20, 0, Math.PI * 2);
+            ctx.fillStyle = "#00ff00";
+            ctx.fill();
+            ctx.closePath();
+
+            // --- TRIKI BLOKUJĄCE USYPIANIE LUMII ---
+            toggle = !toggle;
+            
+            // Trik A: Delikatny, niewidoczny scroll o 1 piksel w dół i w górę
+            window.scrollTo(0, toggle ? 1 : 0);
+            
+            // Trik B: Zmiana zawartości losowego elementu w pamięci, 
+            // żeby wymusić ciągłą pracę silnika renderującego Trident
+            dummy.style.left = toggle ? "1px" : "0px";
+        }
+
+        // Używamy agresywnego setInterval zamiast requestAnimationFrame.
+        // Odświeżanie co 16ms wymusza stabilne okolice 60 klatek na sekundę.
+        setInterval(rysujKlatke, 16);
+    </script>
+
 </body>
 </html>
