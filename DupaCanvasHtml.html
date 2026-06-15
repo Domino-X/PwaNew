@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Test HTML5 Canvas & WebSocket</title>
+    <style>
+        body { background: #111; color: white; text-align: center; font-family: sans-serif; }
+        canvas { border: 2px solid #00ff00; background: #222; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h2>Test Wydajnoœci Lumii (HTML5 Canvas)</h2>
+    <div id="status">£¹czenie z tunelem WebSocket...</div>
+    
+    <canvas id="canvas" width="400" height="300"></canvas>
+
+    <script>
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
+        var statusDiv = document.getElementById('status');
+        
+        // Otwieramy sta³y tunel WebSocket (na razie publiczne echo do testu)
+        var ws = new WebSocket('wss://echo.websocket.org');
+        
+        var x = 0;
+        var y = 150;
+        var dx = 5;
+
+        ws.onopen = function() {
+            statusDiv.innerHTML = "<span style='color: #00ff00;'>Po³¹czono! Rozpoczynam p³ynny streaming...</span>";
+            
+            // Pêtla generuj¹ca dane animacji 60 razy na sekundê (60 FPS)
+            setInterval(function() {
+                // Obliczamy now¹ pozycjê kropki
+                x += dx;
+                if(x > canvas.width || x < 0) dx = -dx;
+                
+                // Pakujemy wspó³rzêdne w ma³y pakiet tekstowy (tak jak ThinRDP pakowa³o piksele)
+                var daneObrazu = JSON.stringify({x: x, y: y});
+                
+                // Wysy³amy do serwera, a on natychmiast odeœle to do nas
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.send(daneObrazu);
+                }
+            }, 16); // 16 ms = ~60 klatek na sekundê!
+        };
+
+        // Gdy Lumia odbiera dane z tunelu, natychmiast rysuje je na Canvasie
+        ws.onmessage = function(event) {
+            var dane = JSON.parse(event.data);
+            
+            // Czyœcimy p³ótno przed now¹ klatk¹
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Rysujemy siatkê t³a (¿eby sprawdziæ p³ynnoœæ)
+            ctx.fillStyle = "#333";
+            ctx.fillRect(10, 10, 380, 280);
+            
+            // Rysujemy nasz¹ dynamiczn¹, p³ynn¹ kropkê
+            ctx.beginPath();
+            ctx.arc(dane.x, dane.y, 20, 0, Math.PI*2);
+            ctx.fillStyle = "#00ff00"; // Zielona kropka matrycy
+            ctx.fill();
+            ctx.closePath();
+        };
+
+        ws.onerror = function(err) {
+            statusDiv.innerHTML = "<span style='color: red;'>B³¹d po³¹czenia z WebSocket!</span>";
+        };
+    </script>
+</body>
+</html>
